@@ -9,11 +9,25 @@
        
         
         .auto-style1 {
-            width: 256px;
+            width: 535px;
+            height: 106px;
         }
         .auto-style2 {
-            width: 256px;
-            height: 317px;
+            width: 329px;
+            height: 334px;
+        }
+       
+        
+        .auto-style3 {
+            height: 45px;
+        }
+        .auto-style4 {
+            height: 45px;
+            width: 223px;
+        }
+        .auto-style5 {
+            width: 79px;
+            height: 45px;
         }
        
         
@@ -26,21 +40,21 @@
             <h1>Please Login</h1>
             <table class="auto-style1">
                 <tr>
-                    <td class="auto-style9">UserName:</td>
-                    <td class="auto-style6">
+                    <td class="auto-style3">UserName:</td>
+                    <td class="auto-style3">
                         <asp:TextBox ID="txtUserName" runat="server" Width="200px"></asp:TextBox>
                     </td>
-                    <td class="auto-style6">
+                    <td class="auto-style4">
                         <asp:RequiredFieldValidator ID="vldUserName" runat="server" ControlToValidate="txtUserName" ErrorMessage="Username is required! Please see your administrator" ForeColor="Red"></asp:RequiredFieldValidator>
                     </td>
                 </tr>
                 <tr>
                     <td class="auto-style5">Password:</td>
-                    <td class="auto-style8">
+                    <td class="auto-style5">
                         <asp:TextBox ID="txtPassword" runat="server" Width="200px" TextMode="Password"></asp:TextBox>
             
                     </td>
-                    <td class="auto-style8">
+                    <td class="auto-style4">
                         <asp:RequiredFieldValidator ID="vldPassword" runat="server" ControlToValidate="txtPassword" ErrorMessage="Password is required!" ForeColor="Red"></asp:RequiredFieldValidator>
                         <asp:Label ID="lblVldPassword" runat="server" Text="Invalid Password,  Please see your administrator" ForeColor="Red" Visible="False"></asp:Label><br />
 
