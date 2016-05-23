@@ -136,6 +136,7 @@ namespace Solstice
 		/// </summary>
 		private void setUI(StudentProblem curProb)
 		{
+            // Pull current problem from problem list
 			AddSubProblem prob = curProb.Problem;
 			Session["CurAnswer"] = prob.Result;
 			string ord1 = prob.Operator1.ToString();
@@ -162,15 +163,23 @@ namespace Solstice
 			lblThisTime.Text = "Today, you work on " + probType;
 		}
 
+        /// <summary>
+        /// Sets up the final results panel
+        /// </summary>
         private void setFinal()
         {
+            // Pull the data from session variables
             int right = (int)Session["RightAnswerCount"];
             int wrong = (int)Session["WrongAnswerCount"];
 
+            // Set the labels
             lblRight.Text = "You got " + right.ToString() + " right!";
             lblWrong.Text = "You got " + wrong.ToString() + " wrong";
         }
 
+        /// <summary>
+        /// Displays the final results panel
+        /// </summary>
         private void goToFinal()
         {
             pnlGame.Visible = false;

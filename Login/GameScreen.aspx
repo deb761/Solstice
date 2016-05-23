@@ -7,10 +7,10 @@
     <title>Solstice Math Game</title>
     <style>
         #form1 {
-            border: thick #000000 solid;
+            border: thick black solid;
             margin-left: 5%;
             padding-left: 5%;
-            width: 75%;
+            width: 55%;
         }
         #txtStudentInput {
             border: thick black solid;
