@@ -16,13 +16,14 @@ namespace Solstice
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-            if (Redirect(UserType.Student))
-                return;
+            /*if (Redirect(UserType.Student))
+                return;*/
+            Session["UserID"] = 7;
 
-				if (!IsPostBack)
-				{
+			if (!IsPostBack)
+			{
                 // Initialize page
-					int studentID = (int)Session["UserID"];
+                int studentID = (int)Session["UserID"];
                 ProblemSet probSet = new ProblemSet(studentID, 1, ProblemType.Addition);
                 Session["CurProbSet"] = probSet;
                 int idx = 0;
@@ -33,8 +34,8 @@ namespace Solstice
                 Session["WrongAnswerCount"] = 0;
                 setWelcome();
                 setUI(probSet.ProblemList[0]);
-				}
 			}
+		}
 
 		/// <summary>
 		/// Submits student's answer and checks against stored answer.
@@ -42,7 +43,7 @@ namespace Solstice
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		protected void btnSubmit_Click(object sender, ImageClickEventArgs e)
+		protected void btnSubmit_Click(object sender, EventArgs e)
 		{
 			// check that the user input is not blank
 			if (String.IsNullOrWhiteSpace(txtStudentInput.Text))
@@ -68,7 +69,7 @@ namespace Solstice
 
 				//change the label text and color
 				lblAnswerResult.Text = "Correct!";
-                //lblAnswerResult.ForeColor = "#9BFF3A";
+                lblAnswerResult.CssClass = "correct";
 
                 // increment right answers
                 int x = (int)Session["RightAnswerCount"];
@@ -83,7 +84,7 @@ namespace Solstice
 
 				//change the label text and color
 				lblAnswerResult.Text = "Incorrect!";
-                // lblAnswerResult.ForeColor = "#E52B14";
+                lblAnswerResult.CssClass = "incorrect";
 
                 // increment wrong answers
                 int x = (int)Session["WrongAnswerCount"];
@@ -140,15 +141,10 @@ namespace Solstice
 			string ord1 = prob.Operator1.ToString();
 			string ord2 = prob.Operator2.ToString();
 
-            // set the images for the UI
-            imgOpSign.ImageUrl = "images/signs/plus.png";
-            imgOrd1.ImageUrl = "images/nums/" + ord1 + ".png";
-            imgOrd2.ImageUrl = "images/nums/" + ord2 + ".png";
-
-            // set alternate text
-			imgOpSign.AlternateText = "+";
-			imgOrd1.AlternateText = ord1;
-			imgOrd2.AlternateText = ord2;
+            // set text
+			lblOpSign.Text = "+";
+			lblOrd1.Text = ord1;
+			lblOrd2.Text = ord2;
 		}
 
 		/// <summary>
@@ -188,7 +184,7 @@ namespace Solstice
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		protected void btnReady_Click(object sender, ImageClickEventArgs e)
+		protected void btnReady_Click(object sender, EventArgs e)
 		{
 			pnlWelcome.Visible = false;
             pnlGame.Visible = true;
@@ -199,7 +195,7 @@ namespace Solstice
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		protected void btnContinue_Click(object sender, ImageClickEventArgs e)
+		protected void btnContinue_Click(object sender, EventArgs e)
 		{
 			pnlResults.Visible = false;
             pnlGame.Visible = true;
