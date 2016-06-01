@@ -16,9 +16,8 @@ namespace Solstice
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-            /*if (Redirect(UserType.Student))
-                return;*/
-            Session["UserID"] = 7;
+            if (Redirect(UserType.Student))
+                return;
 
 			if (!IsPostBack)
 			{
@@ -26,9 +25,8 @@ namespace Solstice
                 int studentID = (int)Session["UserID"];
                 ProblemSet probSet = new ProblemSet(studentID, 1, ProblemType.Addition);
                 Session["CurProbSet"] = probSet;
-                int idx = 0;
-                lblProbIdx.Text = idx.ToString();
-                lblGameOver.Text = "false";
+                Session["ProblemIdx"] = 0;
+                Session["GameOver"] = false;
                 Session["CurRound"] = 1;
                 Session["RightAnswerCount"] = 0;
                 Session["WrongAnswerCount"] = 0;
@@ -49,87 +47,133 @@ namespace Solstice
 			if (String.IsNullOrWhiteSpace(txtStudentInput.Text))
 				return; // return out if the input is blank
 
-			// get index value from hidden label
-			int idx;
-			Int32.TryParse(lblProbIdx.Text, out idx);
+            GetInput();
+            CheckStudentAnswer();
+            StoreResults();
+            ChangePanels();
+        }
 
-			// get student answer from textbox
-			int studentAnswer;
-			Int32.TryParse(txtStudentInput.Text, out studentAnswer);
-            txtStudentInput.Text = "";
+        /// <summary>
+        /// Stores student text input as session variable
+        /// </summary>
+        private void GetInput()
+        {
+            // get student answer from textbox
+            int studentAnswer;
+            Int32.TryParse(txtStudentInput.Text, out studentAnswer);
+            Session["StudentAnswer"] = studentAnswer;
+            txtStudentInput.Text = ""; 
+        }
 
-			ProblemSet probSet = (ProblemSet)Session["CurProbSet"];
-			StudentProblem curProb = probSet.ProblemList[idx];
-			// correct answer
-			if (studentAnswer == curProb.Problem.Result)
-			{
-				// add happy cookie image
-				imgCookie.ImageUrl = "images/cookie-happy.png";
-				imgCookie.AlternateText = "Happy Cookie";
+        /// <summary>
+        /// Checks the student's answer against the stored correct answer
+        /// </summary>
+        private void CheckStudentAnswer()
+        {
+            int studentAnswer = (int)Session["StudentAnswer"];
+            StudentProblem curProb = GetCurProb();
+            
+            // correct answer
+            if (studentAnswer == curProb.Problem.Result)
+            {
+                // add happy cookie image
+                imgCookie.ImageUrl = "images/cookie-happy.png";
+                imgCookie.AlternateText = "Happy Cookie";
 
-				//change the label text and color
-				lblAnswerResult.Text = "Correct!";
+                //change the label text and color
+                lblAnswerResult.Text = "Correct!";
                 lblAnswerResult.CssClass = "correct";
 
                 // increment right answers
                 int x = (int)Session["RightAnswerCount"];
                 Session["RightAnswerCount"] = ++x;
-			}
-			// incorrect answer
-			else
-			{
-				// add sad cookie image
-				imgCookie.ImageUrl = "images/cookie-sad.png";
-				imgCookie.AlternateText = "Sad Cookie";
+            }
+            // incorrect answer
+            else
+            {
+                // add sad cookie image
+                imgCookie.ImageUrl = "images/cookie-sad.png";
+                imgCookie.AlternateText = "Sad Cookie";
 
-				//change the label text and color
-				lblAnswerResult.Text = "Incorrect!";
+                //change the label text and color
+                lblAnswerResult.Text = "Incorrect!";
                 lblAnswerResult.CssClass = "incorrect";
 
                 // increment wrong answers
                 int x = (int)Session["WrongAnswerCount"];
                 Session["WrongAnswerCount"] = ++x;
-			}
+            }
+        }
 
-			// Store problem and student's answer as a Result object
-			Result result = new Result();
-			result.StudentID = (int)Session["UserID"];
-			result.ProblemID = curProb.Problem.AddSubProblemID;
-			result.Answer = studentAnswer;
-			result.Level = curProb.Problem.Level;
-			result.Round = (int)Session["CurRound"];
+        /// <summary>
+        /// Stores student answer as a result
+        /// </summary>
+        private void StoreResults()
+        {
+            int studentAnswer = (int)Session["StudentAnswer"];
+            StudentProblem curProb = GetCurProb();
 
-			// Add the result to the list node
-			curProb.studentResult = result;
+            // Store problem and student's answer as a Result object
+            Result result = new Result();
+            result.StudentID = (int)Session["UserID"];
+            result.ProblemID = curProb.Problem.AddSubProblemID;
+            result.Answer = studentAnswer;
+            result.Level = curProb.Problem.Level;
+            result.Round = (int)Session["CurRound"];
+
+            // Add the result to the list node
+            curProb.studentResult = result;           
+        }
+
+        /// <summary>
+        /// Determines which panel to switch to
+        /// </summary>
+        private void ChangePanels()
+        {
+            ProblemSet probSet = (ProblemSet)Session["CurProbSet"];
+            int idx = (int)Session["ProblemIdx"];
 
             // bring up the results pop up panel
             pnlGame.Visible = false;
-			pnlResults.Visible = true;
+            pnlResults.Visible = true;
 
-			// check if we've reached the end of the list
-			if (++idx >= probSet.ProblemList.Count)
-			{
-				// save the results to the DB
-				probSet.SaveResults();
+            // check if we've reached the end of the list
+            if (++idx >= probSet.ProblemList.Count)
+            {
+                // save the results to the DB
+                probSet.SaveResults();
 
-                lblGameOver.Text = "true";
+                Session["GameOver"] = true;
 
-				// advance the round
-				int round = (int)Session["CurRound"];
-				Session["CurRound"] = ++round;
+                // advance the round
+                int round = (int)Session["CurRound"];
+                Session["CurRound"] = ++round;
 
                 // switch panels to display
                 setFinal();
-			}
-			else
-			{
-				// store current index in hidden label
-				lblProbIdx.Text = idx.ToString();
+            }
+            else
+            {
+                // store current index in hidden label
+                Session["ProblemIdx"] = idx;
 
-				// move to the next problem
-				setUI(probSet.ProblemList[idx]);
-			}
-		}
+                // move to the next problem
+                setUI(probSet.ProblemList[idx]);
+            }
+        }
+
+        /// <summary>
+        /// Grabs the current problem form the problem set's list 
+        /// using the current index value
+        /// </summary>
+        /// <returns>Current Problem that the student is working on</returns>
+        private StudentProblem GetCurProb()
+        {
+            int idx = (int)Session["ProblemIdx"];
+            ProblemSet probSet = (ProblemSet)Session["CurProbSet"];
+            StudentProblem curProb = probSet.ProblemList[idx];
+            return curProb;
+        }
 
 		/// <summary>
 		/// Sets the UI for the game screen.
@@ -141,9 +185,11 @@ namespace Solstice
 			Session["CurAnswer"] = prob.Result;
 			string ord1 = prob.Operator1.ToString();
 			string ord2 = prob.Operator2.ToString();
+            string opSign =
+                prob.ProblemType == ProblemType.Addition ? "+" : "-";
 
             // set text
-			lblOpSign.Text = "+";
+			lblOpSign.Text = opSign;
 			lblOrd1.Text = ord1;
 			lblOrd2.Text = ord2;
 		}
@@ -217,7 +263,6 @@ namespace Solstice
 
 		protected void btnLogoff_Click(object sender, EventArgs e)
 		{
-            
             Server.Transfer("logout.aspx");
 		}
 	}
