@@ -11,6 +11,7 @@
     <div>
     <h2>Classes </h2>
         <br />
+        <a href="AdminHome.aspx">Admin Home Page</a>
     </div>
         <asp:GridView ID="GridView1" runat="server" AllowSorting="True" AutoGenerateColumns="False" CellPadding="4" DataKeyNames="ClassID" DataSourceID="SqlDataSource1" ForeColor="#333333" GridLines="None" OnSelectedIndexChanged="GridView1_SelectedIndexChanged">
             <AlternatingRowStyle BackColor="White" />
