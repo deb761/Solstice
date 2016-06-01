@@ -2,6 +2,7 @@
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 
 namespace Solstice
@@ -16,7 +17,6 @@ namespace Solstice
             }
         }
 
-        private SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["SolsticeAPI_dbConnectionString"].ConnectionString);
         protected void btnLogin_Click(object sender, EventArgs e)
         {
             int userID = GetUserID();
@@ -25,17 +25,20 @@ namespace Solstice
                 //Click on the login to add the user
                 Session["UserID"] = userID;
 
-                switch ((UserType)Session["UserType"])
+                switch ((UserTypeEnum)Session["UserType"])
                 {
                     //Switch statement to see if the user is a student,admin,or teacher
-                    case UserType.Student:
+                    case UserTypeEnum.Student:
                         Response.Redirect("GameScreen.aspx");
                         break;
-                    case UserType.Teacher:
+                    case UserTypeEnum.Teacher:
                         Response.Redirect("TeacherHome.aspx");
                         break;
-                    case UserType.Administrator:
+                    case UserTypeEnum.Administrator:
                         Response.Redirect("AdminHome.aspx");
+                        break;
+                    case UserTypeEnum.Super:
+                        Response.Redirect("SecretSeedDatabase.aspx");
                         break;
                 }
             }
@@ -53,18 +56,15 @@ namespace Solstice
         {
             lblVldPassword.Visible = false;
 
-            conn.Open();
-            string checkuser = "SELECT UserID, Password, UserType FROM Users WHERE Login=@username";
-            SqlCommand com = new SqlCommand(checkuser, conn);
-            com.Parameters.AddWithValue("@username", txtUserName.Text);
-            SqlDataReader reader = com.ExecuteReader();
-            int userID = 0;
-
-            if (reader.HasRows)
+            using (DataClassesDataContext db = new DataClassesDataContext())
             {
-                while (reader.Read())
+                var userq = db.Users.Where(x => x.Login == txtUserName.Text);
+                int userID = 0;
+
+                if (userq.Count() > 0)
                 {
-                    string mash = (string)reader.GetValue(1);
+                    User user = userq.First();
+                    string mash = user.Password;
                     string hash = mash.Substring(startIndex: 0, length: HashLength);
                     string salt = mash.Substring(startIndex: HashLength);
                     string crypted = String.Empty;
@@ -75,20 +75,18 @@ namespace Solstice
                     }
                     if (hash == crypted)
                     {
-                        Session["UserType"] = (UserType)reader.GetValue(2);
-
-                        userID = (int)reader.GetValue(0);
+                        Session["UserType"] = user.UserType;
+                        userID = user.UserID;
                     }
+                    if (userID == 0)
+                        lblVldPassword.Visible = true;
                 }
-                if (userID == 0)
+                else
+                {
                     lblVldPassword.Visible = true;
+                }
+                return userID;
             }
-            else
-            {
-                lblVldPassword.Visible = true;
-            }
-            conn.Close();
-            return userID;
         }
     }
 }

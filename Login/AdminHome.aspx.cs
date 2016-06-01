@@ -15,22 +15,8 @@ namespace Solstice
         /// <param name="e">not used</param>
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["UserType"] == null)
-            {
-                Response.Redirect("Login.aspx");
+            if (Redirect(UserTypeEnum.Administrator))
                 return;
-            }
-            UserType uType = (UserType)Session["UserType"];
-
-            switch (uType)
-            {
-                case UserType.Student:
-                    Response.Redirect("GameScreen.aspx");
-                    break;
-                case UserType.Teacher:
-                    Response.Redirect("TeacherHome.aspx");
-                    break;
-            }
         }
         /// <summary>
         /// Update the user displayed in the user details area

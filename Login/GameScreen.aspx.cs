@@ -16,7 +16,7 @@ namespace Solstice
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-            if (Redirect(UserType.Student))
+            if (Redirect(UserTypeEnum.Student))
                 return;
 
 			if (!IsPostBack)

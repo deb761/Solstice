@@ -6,30 +6,30 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using Solstice.Models;
+using Solstice;
 
 public partial class SecretFillAddSub : ProtectedPage
 {
+    /// <summary>
+    /// The database
+    /// </summary>
+    DataClassesDataContext db = new DataClassesDataContext();
+    /// <summary>
+    /// Fill the AddSubProblem table when the page loads
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (Redirect(UserType.Super))
+        if (Redirect(UserTypeEnum.Super))
             return;
 
         const int MaxLev1 = 10;
         //const int MaxLev2 = 100;
         try
         {
-            SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["SolsticeAPI_dbConnectionString"].ConnectionString);
-            conn.Open();
-            string checkuser = "SELECT * FROM AddSubProblems";
-            SqlCommand com = new SqlCommand(checkuser, conn);
-            SqlDataReader reader = com.ExecuteReader();
-
-            if (!reader.HasRows) // table is empty
+            if (db.AddSubProblems.Count() == 0) // table is empty
             {
-                conn.Close();
-                // Reopen the connection to add records
-                conn.Open();
                 // Add level 1 problems
                 int level = 1;
                 for (int op1 = 0; op1 < MaxLev1; op1++)
@@ -39,8 +39,7 @@ public partial class SecretFillAddSub : ProtectedPage
                         int sum = op1 + op2;
                         if (sum < MaxLev1)
                         {
-                            AddRecord(conn, level, op1, op2, sum, ProblemType.Addition);
-
+                            AddRecord(level, op1, op2, sum, ProblemTypeEnum.Addition);
                         }
                     }
                 }
@@ -50,10 +49,9 @@ public partial class SecretFillAddSub : ProtectedPage
                     for (int op2 = 0; op2 <= op1; op2++)
                     {
                         int result = op1 - op2;
-                        AddRecord(conn, level, op1, op2, result, ProblemType.Subtraction);
+                        AddRecord(level, op1, op2, result, ProblemTypeEnum.Subtraction);
                     }
                 }
-                conn.Close();
             }
         }
         catch (Exception ex)
@@ -62,16 +60,15 @@ public partial class SecretFillAddSub : ProtectedPage
             lblCreateError.Text = "Error: " + ex.ToString();
         }
     }
-    private void AddRecord(SqlConnection conn, int level, int op1, int op2, int result, ProblemType prob)
+    private void AddRecord(int level, int op1, int op2, int result, ProblemTypeEnum prob)
     {
-        string query = "INSERT INTO AddSubProblems (Level, Operator1, Operator2, Result, ProblemType) " +
-            "VALUES (@level, @operator1, @operator2, @result, @problemType)";
-        SqlCommand com1 = new SqlCommand(cmdText: query, connection: conn);
-        com1.Parameters.Add(new SqlParameter("@level", level));
-        com1.Parameters.Add(new SqlParameter("@operator1", op1));
-        com1.Parameters.Add(new SqlParameter("@operator2", op2));
-        com1.Parameters.Add(new SqlParameter("@result", result));
-        com1.Parameters.Add(new SqlParameter("@problemType", (int)prob));
-        com1.ExecuteNonQuery(); // Used for Insert, Update, Delete SQL Statements
+        {
+            AddSubProblem problem = new AddSubProblem();
+            problem.Level = level;
+            problem.Operator1 = op1;
+            problem.Operator1 = op2;
+            problem.Result = result;
+            db.AddSubProblems.InsertOnSubmit(problem);
+        }
     }
 }
