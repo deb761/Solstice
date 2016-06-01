@@ -18,7 +18,7 @@
     <form id="form1" runat="server">
     <div>
         <div class="block">
-           
+         <a href="ClassView.aspx">Admin Class View</a>
         <h1>Teachers</h1>
         <asp:gridview runat="server" AllowSorting="True" CellPadding="4" 
             DataSourceID="TeacherDataSource" ForeColor="#333333" GridLines="None" 
