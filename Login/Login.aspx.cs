@@ -14,6 +14,8 @@ namespace Solstice
             {
                 Validate();
             }
+           
+            
         }
 
         private SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["SolsticeAPI_dbConnectionString"].ConnectionString);
