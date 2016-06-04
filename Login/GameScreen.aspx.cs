@@ -21,19 +21,45 @@ namespace Solstice
 
 			if (!IsPostBack)
 			{
-                // Initialize page
-                int studentID = (int)Session["UserID"];
-                ProblemSet probSet = new ProblemSet(studentID, 1, ProblemType.Addition);
-                Session["CurProbSet"] = probSet;
-                Session["ProblemIdx"] = 0;
-                Session["GameOver"] = false;
-                Session["CurRound"] = 1;
-                Session["RightAnswerCount"] = 0;
-                Session["WrongAnswerCount"] = 0;
-                setWelcome();
-                setUI(probSet.ProblemList[0]);
+                SetSession();
 			}
 		}
+
+        /// <summary>
+        /// Sets up the session based on the users last recorded session
+        /// </summary>
+        private void SetSession()
+        {
+            int studentID = (int)Session["UserID"];
+            DataClassesDataContext dcdContext = new DataClassesDataContext();
+            GetLastRoundResult lastRound = dcdContext.GetCurrentRound(studentID);
+            ProblemTypeEnum probType = DetermineProbType(lastRound.Level);
+            ProblemSet probSet = new ProblemSet(studentID, lastRound.Level, probType);
+            Session["LastRound"] = lastRound;
+            Session["CurProbSet"] = probSet;
+            Session["CurProbSetType"] = probType;
+            Session["ProblemIdx"] = 0;
+            Session["GameOver"] = false;
+            Session["CurRound"] = lastRound.Round;
+            Session["RightAnswerCount"] = 0;
+            Session["WrongAnswerCount"] = 0;
+            setWelcome();
+            setUI(probSet.ProblemList[0]);
+        }
+
+        /// <summary>
+        /// Determines problem type based on level
+        /// </summary>
+        /// <param name="level"></param>
+        /// <returns>Problem type of the current set of problems</returns>
+        private ProblemTypeEnum DetermineProbType(int level)
+        {
+            if (level % 2 == 0)
+                return ProblemTypeEnum.Subtraction;
+            // TODO: add in capability to have both add and sub problems in the list
+            else
+                return ProblemTypeEnum.Addition;
+        }
 
 		/// <summary>
 		/// Submits student's answer and checks against stored answer.
@@ -186,7 +212,7 @@ namespace Solstice
 			string ord1 = prob.Operator1.ToString();
 			string ord2 = prob.Operator2.ToString();
             string opSign =
-                prob.ProblemType == ProblemType.Addition ? "+" : "-";
+                prob.ProblemType == ProblemTypeEnum.Addition ? "+" : "-";
 
             // set text
 			lblOpSign.Text = opSign;
@@ -199,14 +225,20 @@ namespace Solstice
 		/// </summary>
 		private void setWelcome()
 		{
+            // Get problem type and last round data from Session variables
+            ProblemTypeEnum probType = (ProblemTypeEnum)Session["CurProbSetType"];
+            GetLastRoundResult lastRound = (GetLastRoundResult)Session["LastRound"];
+
+            // Pass variables to strings for displaying in Panel
 			string name = (string)Session["FirstName"];
-			string probType = "+"; // temp until we include other types of problems
-			string lastRound = "0"; // temp until we keep track of round/levels passed
+            string type =
+                probType == ProblemTypeEnum.Addition ? "addition" : "subtraction";
+			string round = lastRound.Level.ToString();
 
 			// Set the label text
 			lblWelcomeName.Text = "Welcome, " + name;
-			lblLastTime.Text = "Last, you made it to round " + lastRound;
-			lblThisTime.Text = "Today, you work on " + probType;
+			lblLastTime.Text = "Last, you made it to round " + round;
+			lblThisTime.Text = "Today, you work on " + type;
 		}
 
         /// <summary>
