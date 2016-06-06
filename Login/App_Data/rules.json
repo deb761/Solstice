@@ -1,0 +1,36 @@
+﻿[
+
+  {
+    "Level": 1,
+    "MinVal1": 0,
+    "MaxVal1": 10,
+    "MinVal2": 0,
+    "MaxVal2": 10,
+    "MaxResult" : 10,
+    "PlaceVal": 0,
+    "NumRounds": 3,
+    "ProbsPerRound": 10
+  },
+  {
+    "Level": 2,
+    "MinVal1": 0,
+    "MaxVal1": 10,
+    "MinVal2": 10,
+    "MaxVal2": 100,
+    "MaxResult": 100,
+    "PlaceVal": 1,
+    "NumRounds": 3,
+    "ProbsPerRound": 10
+  },
+  {
+    "Level": 3,
+    "MinVal1": 10,
+    "MaxVal1": 100,
+    "MinVal2": 10,
+    "MaxVal2": 100,
+    "MaxResult": 100,
+    "PlaceVal": 1,
+    "NumRounds": 3,
+    "ProbsPerRound": 10
+  }
+]

@@ -9,7 +9,7 @@ public partial class TeacherHome : ProtectedPage
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        if (Redirect(UserType.Teacher))
+        if (Redirect(UserTypeEnum.Teacher))
             return;
     }
 

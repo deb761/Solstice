@@ -17,27 +17,27 @@ public class ProtectedPage : System.Web.UI.Page
     /// </summary>
     /// <param name="allowed"></param>
     /// <returns></returns>
-    protected bool Redirect(UserType allowed)
+    protected bool Redirect(UserTypeEnum allowed)
     {
         if (Session["UserType"] == null)
         {
             Response.Redirect("Login.aspx");
             return true;
         }
-        UserType uType = (UserType)Session["UserType"];
+        UserTypeEnum uType = (UserTypeEnum)Session["UserType"];
 
-        if ((uType == allowed) || (uType == UserType.Super))
+        if ((uType == allowed) || (uType == UserTypeEnum.Super))
             return false;
 
         switch (uType)
         {
-            case UserType.Student:
+            case UserTypeEnum.Student:
                 Response.Redirect("GameScreen.aspx");
                 break;
-            case UserType.Teacher:
+            case UserTypeEnum.Teacher:
                 Response.Redirect("TeacherHome.aspx");
                 break;
-            case UserType.Administrator:
+            case UserTypeEnum.Administrator:
                 Response.Redirect("AdminHome.aspx");
                 break;
         }

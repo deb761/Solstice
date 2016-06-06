@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Login": "super",
+    "FirstName": "Clark",
+    "LastName": "Kent",
+    "UserType": 3
+  },
+  {
+    "Login": "admin",
+    "FirstName": "Nancy",
+    "LastName": "Drew",
+    "UserType": 2
+  }
+]

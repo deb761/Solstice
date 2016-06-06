@@ -16,14 +16,14 @@ namespace Solstice
 	{
 		protected void Page_Load(object sender, EventArgs e)
 		{
-            if (Redirect(UserType.Student))
+            if (Redirect(UserTypeEnum.Student))
                 return;
 
 				if (!IsPostBack)
 				{
                 // Initialize page
 					int studentID = (int)Session["UserID"];
-                ProblemSet probSet = new ProblemSet(studentID, 1, ProblemType.Addition);
+                ProblemSet probSet = new ProblemSet(studentID, 1, ProblemTypeEnum.Addition);
                 Session["CurProbSet"] = probSet;
                 int idx = 0;
                 lblProbIdx.Text = idx.ToString();
